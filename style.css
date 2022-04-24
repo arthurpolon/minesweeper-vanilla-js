@@ -1,0 +1,21 @@
+body {
+  height: 100vh;
+}
+
+.board {
+  display: grid;
+  gap: 12px;
+
+  border: 1px solid red;
+
+  width: fit-content;
+
+  padding: 12px;
+}
+
+.cell {
+  border: 1px solid red;
+  display: grid;
+
+  place-items: center;
+}
