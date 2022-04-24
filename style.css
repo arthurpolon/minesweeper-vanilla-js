@@ -19,3 +19,7 @@ body {
 
   place-items: center;
 }
+
+.bomb {
+  background-color: #ffcccb;
+}
