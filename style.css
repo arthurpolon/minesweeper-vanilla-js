@@ -4,7 +4,7 @@ body {
 
 .board {
   display: grid;
-  gap: 12px;
+  gap: 4px;
 
   border: 1px solid red;
 
@@ -18,6 +18,8 @@ body {
   display: grid;
 
   place-items: center;
+
+  cursor: pointer;
 }
 
 .bomb {

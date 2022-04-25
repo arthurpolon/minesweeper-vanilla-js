@@ -2,6 +2,7 @@ import { mapTwoDimensionalArray } from './utils.js';
 import { createCellsArray } from './cell.js';
 
 const board = document.querySelector('.board');
+const regenerateButton  = document.querySelector('.regenerate-button');
 
 const boardSize = parseInt(board.dataset.size)
 const numberOfBombs = parseInt(board.dataset.bombs)
@@ -46,3 +47,9 @@ function populateBoard(boardSize, bombsPosition) {
 const bombsPosition = generateRandomBombs(numberOfBombs, boardSize);
 
 populateBoard(boardSize, bombsPosition);
+
+regenerateButton.addEventListener('click', () => {
+  board.innerHTML = '';
+  const newBombsPosition = generateRandomBombs(numberOfBombs, boardSize);
+  populateBoard(boardSize, newBombsPosition);
+})
