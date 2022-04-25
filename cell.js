@@ -18,7 +18,7 @@ function checkForNearbyBombs(row, column, cellsArray) {
 
       const currentCell = cellsArray[row + offsetRow]?.[column + offsetColumn];
 
-      if (currentCell && currentCell.dataset.isBomb === 'true') {
+      if (currentCell && currentCell.isBomb) {
         nearbyBombs++;
       }
     }
@@ -27,39 +27,42 @@ function checkForNearbyBombs(row, column, cellsArray) {
   return nearbyBombs
 }
 
-function createCell(row, column, isBomb) {
-  const cell = document.createElement('div');
-  
-  cell.dataset.row = row;
-  cell.dataset.column = column;
-  cell.dataset.isBomb = isBomb;
+function createCell(row, column, bombsPosition) {
+  const element = document.createElement('div');
 
-  cell.classList.add('cell');
-  if (isBomb) cell.classList.add('bomb');
+  const cell = {
+    element,
+    isBomb: bombsPosition.some(bomb => bomb.row === row && bomb.column === column),
+  }
 
-  cell.addEventListener('click', handleCellClick);
-  cell.addEventListener('contextmenu', handleCellRightClick);
+  cell.element.dataset.row = row;
+  cell.element.dataset.column = column;
+
+  cell.element.classList.add('cell');
+  if (cell.isBomb) cell.element.classList.add('bomb');
+
+  cell.element.addEventListener('click', handleCellClick);
+  cell.element.addEventListener('contextmenu', handleCellRightClick);
 
   return cell;
 }
 
 function setCellsContent(cellsArray) {
   mapTwoDimensionalArray(cellsArray, (value, row, column) => {
-    if (value.dataset.isBomb === 'false') {
+    if (value.isBomb) {
+      value.element.innerHTML = '💣';
+    } else {
       const nearbyBombs = checkForNearbyBombs(row, column, cellsArray);
 
-      value.innerHTML = nearbyBombs;
-    } else {
-      value.innerHTML = '💣';
+      value.element.innerHTML = nearbyBombs;
     }
   })
 }
 
 export function createCellsArray(boardSize, bombsPosition) {
   const cellsArray = createTwoDimensionalArray(boardSize, boardSize, (row, column) => {
-    const isBomb = bombsPosition.some(bomb => bomb.row === row && bomb.column === column);
 
-    const cell = createCell(row, column, isBomb);
+    const cell = createCell(row, column, bombsPosition);
 
     return cell;
   });

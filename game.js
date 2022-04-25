@@ -40,7 +40,7 @@ function populateBoard(boardSize, bombsPosition) {
   const cellsArray = createCellsArray(boardSize, bombsPosition);
 
   mapTwoDimensionalArray(cellsArray, (value, row, column) => {
-    board.appendChild(value);
+    board.appendChild(value.element);
   })
 }
 
