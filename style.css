@@ -25,3 +25,11 @@ body {
 .bomb {
   background-color: #ffcccb;
 }
+
+.hidden {
+  background-color: #cccccc;
+}
+
+.marked {
+  background-color: #fbff00;
+}
