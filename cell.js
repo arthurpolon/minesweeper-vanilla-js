@@ -1,19 +1,19 @@
 import { createTwoDimensionalArray, mapTwoDimensionalArray } from './utils.js';
 
-function markCell(cell) {
+function flagCell(cell) {
   if (cell.isHidden) {
-    cell.isMarked = true;
-    cell.element.classList.add('marked');
+    cell.isFlagged = true;
+    cell.element.classList.add('flag');
   }
 }
 
-function unmarkCell(cell) {
-  cell.isMarked = false;
-  cell.element.classList.remove('marked');
+function unFlagCell(cell) {
+  cell.isFlagged = false;
+  cell.element.classList.remove('flag');
 }
 
 function revealCell(cell) {
-  if (cell.isHidden && !cell.isMarked) {
+  if (cell.isHidden && !cell.isFlagged) {
     cell.isHidden = false;
     cell.element.classList.remove('hidden')
 
@@ -21,12 +21,7 @@ function revealCell(cell) {
       cell.element.classList.add('bomb')
       cell.element.innerHTML = '💣';
 
-      //reveal all bombs
-
-      // end game
-
       return
-
     }
 
     cell.element.innerHTML = cell.neighborMines  ? cell.neighborMines : '';
@@ -34,8 +29,8 @@ function revealCell(cell) {
     if (cell.neighborMines === 0) {
       cell.neighbors.forEach(neighbor => {
         if (!neighbor.isBomb) {
-          neighbor.isMarked = false
-          neighbor.element.classList.remove('marked')
+          neighbor.isFlagged = false
+          neighbor.element.classList.remove('flag')
         }
 
         revealCell(neighbor);
@@ -47,10 +42,10 @@ function revealCell(cell) {
 function handleCellRightClick(cell, event) {
   event.preventDefault();
 
-  if (cell.isMarked) {
-    unmarkCell(cell);
+  if (cell.isFlagged) {
+    unFlagCell(cell);
   } else {
-    markCell(cell)
+    flagCell(cell)
   }
 }
 
@@ -84,7 +79,7 @@ function createCell(row, column, bombsPosition) {
     element,
     neighbors: [],
     isHidden: true,
-    isMarked: false,
+    isFlagged: false,
     neighborMines: 0,
     isBomb: bombsPosition.some(bomb => bomb.row === row && bomb.column === column),
   }
@@ -119,10 +114,10 @@ export function createCellsArray(boardSize, bombsPosition) {
 function setAllCellsContent(cellsArray) {
   mapTwoDimensionalArray(cellsArray, (cell, row, column) => {
     if (cell.isBomb) {
-      cell.element.innerHTML = '💣';
+      // cell.element.innerHTML = '💣';
       cell.element.classList.add('bomb');
     } else {
-      cell.element.innerHTML = cell.neighborMines;
+      // cell.element.innerHTML = cell.neighborMines;
     }
   })
 }

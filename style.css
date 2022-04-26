@@ -22,14 +22,14 @@ body {
   cursor: pointer;
 }
 
-.bomb {
-  background-color: #ffcccb;
-}
-
 .hidden {
   background-color: #cccccc;
 }
 
-.marked {
+.bomb {
+  background-color: #fb817f;
+}
+
+.flag {
   background-color: #fbff00;
 }
