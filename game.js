@@ -8,6 +8,8 @@ const state = {
   cellsArray: [],
   bombsPosition: [],
   numberOfFlags: 0,
+
+  callbacks: {},
 };
 
 function stopEventPropagation(event) {
@@ -32,18 +34,22 @@ function revealAllBombs() {
   });
 }
 
-function gameWon() {
+function winTheGame() {
   disableClickOnBoard();
   revealAllBombs();
 
-  state.onGameWon();
+  if (state.callbacks.onGameWin) {
+    state.callbacks.onGameWin();
+  }
 }
 
-function gameLost() {
+function loseTheGame() {
   disableClickOnBoard();
   revealAllBombs();
 
-  state.onGameLost();
+  if (state.callbacks.onGameLose) {
+    state.callbacks.onGameLose();
+  }
 }
 
 function checkIfGameEnded(cell) {
@@ -52,7 +58,7 @@ function checkIfGameEnded(cell) {
   }
 
   if (cell.isBomb) {
-    gameLost();
+    loseTheGame();
 
     return;
   }
@@ -60,7 +66,7 @@ function checkIfGameEnded(cell) {
   const hiddenCells = document.querySelectorAll(".cell.hidden");
 
   if (hiddenCells.length === state.numberOfBombs) {
-    gameWon();
+    winTheGame();
   }
 }
 
@@ -70,12 +76,17 @@ function appendCellsToBoard() {
 
     cell.element.addEventListener("click", () => {
       checkIfGameEnded(cell);
-      state.onCellRightClick(cell);
+
+      if (state.callbacks.onCellRightClick) {
+        state.callbacks.onCellRightClick(cell);
+      }
     });
 
-    cell.element.addEventListener("contextmenu", () =>
-      state.onCellLeftClick(cell)
-    );
+    if (state.callbacks.onCellLeftClick) {
+      cell.element.addEventListener("contextmenu", () => {
+        state.callbacks.onCellLeftClick(cell)
+      });
+    }
   });
 }
 
@@ -116,10 +127,7 @@ export function startGame(
   boardSize,
   numberOfBombs,
   boardElement,
-  onGameWon,
-  onGameLost,
-  onCellRightClick,
-  onCellLeftClick
+  callbacks,
 ) {
   state.boardSize = boardSize;
   state.boardElement = boardElement;
@@ -127,10 +135,8 @@ export function startGame(
     numberOfBombs > boardSize * boardSize
       ? boardSize * boardSize
       : numberOfBombs;
-  state.onGameWon = onGameWon;
-  state.onGameLost = onGameLost;
-  state.onCellRightClick = onCellRightClick;
-  state.onCellLeftClick = onCellLeftClick;
+
+  state.callbacks = callbacks;
 
   setBoardStyles();
 
@@ -160,9 +166,6 @@ export function restartGame(_boardSize, _numberOfBombs) {
     boardSize,
     numberOfBombs,
     state.boardElement,
-    state.onGameWon,
-    state.onGameLost,
-    state.onCellRightClick,
-    state.onCellLeftClick
+    state.callbacks
   );
 }

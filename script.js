@@ -21,6 +21,10 @@ state.remainingBombs = NUMBER_OF_BOMBS;
 function onCellLeftClick(cell) {
   console.log("left click");
 
+  if (!cell.isHidden) {
+    return
+  }
+
   if (cell.isFlagged) {
     state.remainingBombs = state.remainingBombs - 1;
   } else {
@@ -32,7 +36,7 @@ function onCellRightClick(cell) {
   console.log("right click");
 }
 
-function onGameLost() {
+function onGameLose() {
   console.log("lose");
 
   setTimeout(() => {
@@ -40,7 +44,7 @@ function onGameLost() {
   }, 100)
 }
 
-function onGameWon() {
+function onGameWin() {
   console.log("win");
 
   setTimeout(() => {
@@ -48,14 +52,18 @@ function onGameWon() {
   }, 100)
 }
 
+const callbacks = {
+  onCellLeftClick,
+  onCellRightClick,
+  onGameWin,
+  onGameLose
+}
+
 startGame(
   BOARD_SIZE,
   NUMBER_OF_BOMBS,
   boardElement,
-  onGameWon,
-  onGameLost,
-  onCellRightClick,
-  onCellLeftClick
+  callbacks,
 );
 
 function onRestarButtonClick() {
