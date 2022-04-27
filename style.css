@@ -3,7 +3,6 @@ body {
 }
 
 .board {
-  display: grid;
   gap: 4px;
 
   border: 1px solid red;

@@ -1,31 +1,102 @@
-import { mapTwoDimensionalArray } from './utils.js';
-import { createCellsArray } from './cell.js';
+import { mapTwoDimensionalArray } from "./utils.js";
+import { createCellsArray } from "./cell.js";
 
-const board = document.querySelector('.board');
-const restartButton  = document.querySelector('.restart-button');
+const state = {
+  boardSize: 0,
+  numberOfBombs: 0,
+  boardElement: null,
+  cellsArray: [],
+  bombsPosition: [],
+  numberOfFlags: 0,
+};
 
-const boardSize = parseInt(board.dataset.size)
-const numberOfBombs = parseInt(board.dataset.bombs)
+function stopEventPropagation(event) {
+  event.stopImmediatePropagation();
+}
 
-function generateRandomBombs(_numberOfBombs, boardSize) {
-  const bombs = [];
+function disableClickOnBoard() {
+  state.boardElement.addEventListener("click", stopEventPropagation, {
+    capture: true,
+  });
+  state.boardElement.addEventListener("contextmenu", stopEventPropagation, {
+    capture: true,
+  });
+}
 
-  let numberOfBombs = _numberOfBombs;
+function revealAllBombs() {
+  mapTwoDimensionalArray(state.cellsArray, (cell) => {
+    if (cell.isBomb) {
+      cell.element.innerText = "💣";
+      cell.element.classList.add("bomb");
+    }
+  });
+}
 
-  if (_numberOfBombs > boardSize * boardSize) {
-    numberOfBombs = boardSize * boardSize;
+function gameWon() {
+  disableClickOnBoard();
+  revealAllBombs();
+
+  state.onGameWon();
+}
+
+function gameLost() {
+  disableClickOnBoard();
+  revealAllBombs();
+
+  state.onGameLost();
+}
+
+function checkIfGameEnded(cell) {
+  if (cell.isFlagged) {
+    return;
   }
 
-  while(bombs.length < numberOfBombs) {
-    const randomRow = Math.floor(Math.random() * boardSize);
-    const randomColumn = Math.floor(Math.random() * boardSize);
+  if (cell.isBomb) {
+    gameLost();
+
+    return;
+  }
+
+  const hiddenCells = document.querySelectorAll(".cell.hidden");
+
+  if (hiddenCells.length === state.numberOfBombs) {
+    gameWon();
+  }
+}
+
+function appendCellsToBoard() {
+  mapTwoDimensionalArray(state.cellsArray, (cell) => {
+    state.boardElement.appendChild(cell.element);
+
+    cell.element.addEventListener("click", () => {
+      checkIfGameEnded(cell);
+      state.onCellRightClick(cell);
+    });
+
+    cell.element.addEventListener("contextmenu", () =>
+      state.onCellLeftClick(cell)
+    );
+  });
+}
+
+function generateRandomBombs() {
+  const bombs = [];
+
+  while (bombs.length < state.numberOfBombs) {
+    const randomRow = Math.floor(Math.random() * state.boardSize);
+    const randomColumn = Math.floor(Math.random() * state.boardSize);
 
     const bomb = {
       row: randomRow,
-      column: randomColumn
+      column: randomColumn,
     };
 
-    if(!bombs.some(currentBomb => currentBomb.row === bomb.row && currentBomb.column === bomb.column)) {
+    if (
+      !bombs.some(
+        (currentBomb) =>
+          currentBomb.row === bomb.row && currentBomb.column === bomb.column
+      )
+    ) {
       bombs.push(bomb);
     }
   }
@@ -33,85 +104,65 @@ function generateRandomBombs(_numberOfBombs, boardSize) {
   return bombs;
 }
 
-function stopPropagation(event) {
-  event.stopImmediatePropagation();
+function setBoardStyles() {
+  state.boardElement.style.display = "grid";
+  state.boardElement.style.gridTemplateRows =
+    "repeat(" + state.boardSize + ", 40px)";
+  state.boardElement.style.gridTemplateColumns =
+    "repeat(" + state.boardSize + ", 40px)";
 }
 
-function disableClickOnBoard() {
-  board.addEventListener('click', stopPropagation, {capture: true});
-  board.addEventListener('contextmenu', stopPropagation, {capture: true});
-}
+export function startGame(
+  boardSize,
+  numberOfBombs,
+  boardElement,
+  onGameWon,
+  onGameLost,
+  onCellRightClick,
+  onCellLeftClick
+) {
+  state.boardSize = boardSize;
+  state.boardElement = boardElement;
+  state.numberOfBombs =
+    numberOfBombs > boardSize * boardSize
+      ? boardSize * boardSize
+      : numberOfBombs;
+  state.onGameWon = onGameWon;
+  state.onGameLost = onGameLost;
+  state.onCellRightClick = onCellRightClick;
+  state.onCellLeftClick = onCellLeftClick;
 
-function revealAllBombs(cellsArray) {
-  mapTwoDimensionalArray(cellsArray, (cell) => {
-    if (cell.isBomb) {
-      cell.element.innerText = '💣';
-      cell.element.classList.add('bomb');
-    }
-  })
-}
+  setBoardStyles();
 
-function gameWon(cellsArray) {
-  disableClickOnBoard();
-  revealAllBombs(cellsArray);
-
-  setTimeout(() => {
-    alert('You won!');
-  }, 10)
-}
-
-function gameOver(cellsArray) {
-  disableClickOnBoard();
-  revealAllBombs(cellsArray);
-
-  setTimeout(() => {
-    alert('You lose!');
-  }, 10)
-}
-
-function checkIfGameEnded(cell, cellsArray, event) {
-  if (cell.isFlagged) {
-    return;
-  }
-
-  if (cell.isBomb) {
-    gameOver(cellsArray);
-
-    return
-  }
-
-  const hiddenCells = document.querySelectorAll('.cell.hidden');
-
-  if (hiddenCells.length === numberOfBombs) {
-    gameWon(cellsArray);
-  }
-}
-
-function populateBoard(boardSize, bombsPosition) {
-  board.style.gridTemplateRows = 'repeat(' + boardSize + ', 40px)';
-  board.style.gridTemplateColumns = 'repeat(' + boardSize + ', 40px)';
-
+  const bombsPosition = generateRandomBombs();
   const cellsArray = createCellsArray(boardSize, bombsPosition);
 
-  mapTwoDimensionalArray(cellsArray, (cell, row, column) => {
-    board.appendChild(cell.element);
+  state.cellsArray = cellsArray;
+  state.bombsPosition = bombsPosition;
 
-    cell.element.addEventListener('click', (event) => checkIfGameEnded(cell, cellsArray, event));
-  })
+  appendCellsToBoard(cellsArray);
 }
 
-const bombsPosition = generateRandomBombs(numberOfBombs, boardSize);
+export function restartGame(_boardSize, _numberOfBombs) {
+  state.boardElement.innerHTML = "";
 
-populateBoard(boardSize, bombsPosition);
+  const boardSize = _boardSize || state.boardSize;
+  const numberOfBombs = _numberOfBombs || state.numberOfBombs;
 
-function restartGame() {
-  board.innerHTML = '';
-  const newBombsPosition = generateRandomBombs(numberOfBombs, boardSize);
+  state.boardElement.removeEventListener("click", stopEventPropagation, {
+    capture: true,
+  });
+  state.boardElement.removeEventListener("contextmenu", stopEventPropagation, {
+    capture: true,
+  });
 
-  board.removeEventListener('click', stopPropagation, {capture: true});
-  board.removeEventListener('contextmenu', stopPropagation, {capture: true});
-
-  populateBoard(boardSize, newBombsPosition);
+  startGame(
+    boardSize,
+    numberOfBombs,
+    state.boardElement,
+    state.onGameWon,
+    state.onGameLost,
+    state.onCellRightClick,
+    state.onCellLeftClick
+  );
 }
-
-restartButton.addEventListener('click', restartGame)
