@@ -4,8 +4,10 @@ const boardElement = document.querySelector(".board");
 const restartButtonElement = document.querySelector(".restart-button");
 const remainingBombsElement = document.querySelector(".remaining-bombs");
 
-const BOARD_SIZE = 10;
-const NUMBER_OF_BOMBS = 10;
+const boardSizeInput = document.querySelector(".board-size-input");
+const numberOfBombsInput = document.querySelector(".number-of-bombs-input");
+const boardSizeDisplay = document.querySelector(".board-size-display");
+const numberOfBombsDisplay = document.querySelector(".number-of-bombs-display");
 
 const state = {
   get remainingBombs() {
@@ -13,10 +15,30 @@ const state = {
   },
   set remainingBombs(value) {
     remainingBombsElement.innerText = value;
+  },
+
+  get boardSize() {
+    return Number(boardSizeInput.value);
+  },
+  set boardSize(value) {
+    if (numberOfBombsInput.value > value * value) {
+      state.numberOfBombs = value * value;
+      numberOfBombsInput.value = value * value;
+    }
+
+    numberOfBombsInput.max = value * value;
+    boardSizeDisplay.innerText = value;
+  },
+
+  get numberOfBombs() {
+    return Number(numberOfBombsInput.value);
+  },
+  set numberOfBombs(value) {
+    numberOfBombsDisplay.innerText = value;
   }
 }
 
-state.remainingBombs = NUMBER_OF_BOMBS;
+state.remainingBombs = state.numberOfBombs;
 
 function onCellLeftClick(cell) {
   console.log("left click");
@@ -60,16 +82,28 @@ const callbacks = {
 }
 
 startGame(
-  BOARD_SIZE,
-  NUMBER_OF_BOMBS,
+  state.boardSize,
+  state.numberOfBombs,
   boardElement,
   callbacks,
 );
 
 function onRestarButtonClick() {
-  state.remainingBombs = NUMBER_OF_BOMBS;
+  state.remainingBombs = state.numberOfBombs;
 
-  restartGame(BOARD_SIZE, NUMBER_OF_BOMBS);
+  restartGame(state.boardSize, state.numberOfBombs);
 }
 
 restartButtonElement.addEventListener("click", onRestarButtonClick);
+
+function onBoardSizeInputChange(event) {
+  state.boardSize = event.target.value;
+}
+
+function onNumberOfBombsInputChange(event) {
+  state.numberOfBombs = event.target.value;
+}
+
+boardSizeInput.addEventListener("change", onBoardSizeInputChange);
+numberOfBombsInput.addEventListener("change", onNumberOfBombsInputChange);
+

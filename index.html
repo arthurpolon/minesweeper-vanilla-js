@@ -10,7 +10,18 @@
 </head>
 <body>
   <button class="restart-button">Restart Game</button>
+  <div class="inputs-container">
+    <div class="input-wrapper">
+      <input type="range" name="board-size" value="10" min="10" max="20" class="range-input board-size-input">
+      <span class="input-display board-size-display">10</span>
+    </div>
+    <div class="input-wrapper">
+      <input type="range" name="number-of-bombs" value="10" max="100" class="range-input number-of-bombs-input">
+      <span class="input-display number-of-bombs-display">10</span>
+    </div>
+  </div>
   <div>Remaining bombs: <span class="remaining-bombs">00</span></div>
+
   <div class="board">
 </body>
 </html>
