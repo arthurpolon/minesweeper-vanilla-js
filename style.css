@@ -33,6 +33,7 @@ body {
 
   cursor: pointer;
 
+  background: linear-gradient(to right, var(--background), #faf0d4);
   box-shadow: rgb(201 201 201) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
 
