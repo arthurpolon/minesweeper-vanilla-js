@@ -1,13 +1,19 @@
 import { restartGame, startGame } from "./game.js";
 
+const flagIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#fff" d="M4 24h-2v-24h2v24zm18-22h-16v12h16l-4-5.969 4-6.031z"/></svg>'
+
 const boardElement = document.querySelector(".board");
 const restartButtonElement = document.querySelector(".restart-button");
 const remainingBombsElement = document.querySelector(".remaining-bombs");
 
-const boardSizeInput = document.querySelector(".board-size-input");
-const numberOfBombsInput = document.querySelector(".number-of-bombs-input");
-const boardSizeDisplay = document.querySelector(".board-size-display");
-const numberOfBombsDisplay = document.querySelector(".number-of-bombs-display");
+const boardRowsInput = document.querySelector("#board-rows-input");
+const boardColumnsInput = document.querySelector("#board-columns-input");
+const bombsInput = document.querySelector("#bombs-input");
+
+if (window.innerWidth < 580) {
+  boardRowsInput.value = 10;
+  boardColumnsInput.value = 6;
+}
 
 const state = {
   get remainingBombs() {
@@ -18,24 +24,18 @@ const state = {
   },
 
   get boardSize() {
-    return Number(boardSizeInput.value);
-  },
-  set boardSize(value) {
-    if (numberOfBombsInput.value > value * value) {
-      state.numberOfBombs = value * value;
-      numberOfBombsInput.value = value * value;
-    }
+    const rows = Number(boardRowsInput.value);
+    const columns = Number(boardColumnsInput.value);
 
-    numberOfBombsInput.max = value * value;
-    boardSizeDisplay.innerText = value;
+    return {
+      rows,
+      columns,
+    };
   },
 
   get numberOfBombs() {
-    return Number(numberOfBombsInput.value);
+    return Number(bombsInput.value);
   },
-  set numberOfBombs(value) {
-    numberOfBombsDisplay.innerText = value;
-  }
 }
 
 state.remainingBombs = state.numberOfBombs;
@@ -49,12 +49,16 @@ function onCellLeftClick(cell) {
 
   if (cell.isFlagged) {
     state.remainingBombs = state.remainingBombs - 1;
+    cell.element.innerHTML = flagIcon;
   } else {
+    cell.element.innerHTML = "";
+    
     state.remainingBombs = state.remainingBombs + 1;
   }
 }
 
 function onCellRightClick(cell) {
+  
   console.log("right click");
 }
 
@@ -95,15 +99,4 @@ function onRestarButtonClick() {
 }
 
 restartButtonElement.addEventListener("click", onRestarButtonClick);
-
-function onBoardSizeInputChange(event) {
-  state.boardSize = event.target.value;
-}
-
-function onNumberOfBombsInputChange(event) {
-  state.numberOfBombs = event.target.value;
-}
-
-boardSizeInput.addEventListener("change", onBoardSizeInputChange);
-numberOfBombsInput.addEventListener("change", onNumberOfBombsInputChange);
 
